@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Recommendation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            margin: 20px;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .book {
+            background: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        img {
+            width: 100px;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Book Recommendation System</h2>
+
+    <form method="post" id="searchForm">
+        <input type="text" name="query" placeholder="Enter Book Title or Author" required>
+        <select name="search_type">
+            <option value="title">Search by Title</option>
+            <option value="author">Search by Author</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="book-container" id="bookContainer"></div>
+
+    <script>
+        document.getElementById("searchForm").onsubmit = async function(event) {
+            event.preventDefault();
+            const query = document.querySelector('input[name="query"]').value;
+            const search_type = document.querySelector('select[name="search_type"]').value;
+
+            const response = await fetch('/recommend', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `query=${query}&search_type=${search_type}`
+            });
+
+            const recommendations = await response.json();
+            const bookContainer = document.getElementById("bookContainer");
+            bookContainer.innerHTML = '';
+
+            recommendations.forEach(book => {
+                const bookDiv = document.createElement('div');
+                bookDiv.classList.add('book');
+                bookDiv.innerHTML = `
+                    <img src="${book['Image-URL-L']}" alt="Book Cover">
+                    <h3>${book['Book-Title']}</h3>
+                    <p>by ${book['Book-Author']}</p>
+                `;
+                bookContainer.appendChild(bookDiv);
+            });
+        };
+    </script>
+
+</body>
+</html>
+
